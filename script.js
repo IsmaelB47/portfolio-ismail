@@ -2331,6 +2331,161 @@ document.addEventListener(
 
 
 /* ============ INIT ============ */
+/* ============ ABOUT EDITOR ============ */
+
+function createAboutEditor() {
+  if (document.getElementById("aboutOverlay")) {
+    return;
+  }
+
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  overlay.id = "aboutOverlay";
+
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="modal-head">
+        <h3 class="modal-title">edit about.md</h3>
+
+        <button
+          class="modal-close"
+          type="button"
+          aria-label="Close"
+          onclick="closeOverlay('aboutOverlay')"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="field">
+          <label for="about-editor">about</label>
+
+          <textarea
+            id="about-editor"
+            class="input"
+            style="min-height: 280px; resize: vertical;"
+            placeholder="Write your About text..."
+          ></textarea>
+        </div>
+
+        <p class="helptext">
+          This content is displayed in the About section of your portfolio.
+        </p>
+      </div>
+
+      <div class="modal-foot">
+        <span></span>
+
+        <button
+          class="btn btn-primary"
+          type="button"
+          onclick="saveAbout()"
+        >
+          Save changes
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener("click", function (event) {
+    if (event.target === overlay) {
+      closeOverlay("aboutOverlay");
+    }
+  });
+}
+
+
+function openAboutModal() {
+  if (!isAdmin) {
+    return toast(
+      "Admin login required"
+    );
+  }
+
+  createAboutEditor();
+
+  const textarea =
+    document.getElementById(
+      "about-editor"
+    );
+
+  if (!textarea) {
+    return toast(
+      "About editor is not available"
+    );
+  }
+
+  textarea.value =
+    DATA &&
+    DATA.profile &&
+    typeof DATA.profile.bio === "string"
+      ? DATA.profile.bio
+      : "";
+
+  document
+    .getElementById("aboutOverlay")
+    .classList.add("show");
+
+  setTimeout(function () {
+    textarea.focus();
+
+    try {
+      textarea.setSelectionRange(
+        textarea.value.length,
+        textarea.value.length
+      );
+    } catch (error) {
+      // Ignore selection errors.
+    }
+  }, 50);
+}
+
+
+async function saveAbout() {
+  if (!isAdmin) {
+    return toast(
+      "Admin login required"
+    );
+  }
+
+  const textarea =
+    document.getElementById(
+      "about-editor"
+    );
+
+  if (!textarea) {
+    return toast(
+      "About editor is not available"
+    );
+  }
+
+  const bio =
+    textarea.value.trim();
+
+  if (!DATA.profile) {
+    DATA.profile = {};
+  }
+
+  DATA.profile.bio = bio;
+
+  const saved =
+    await persist(
+      "About saved"
+    );
+
+  if (!saved) {
+    return;
+  }
+
+  closeOverlay(
+    "aboutOverlay"
+  );
+
+  renderAll();
+}
 
 (async function init() {
 
