@@ -627,7 +627,7 @@ function renderAll() {
     footer.textContent =
       "~/" +
       slugify(p.name) +
-      " — built and maintained by hand";
+      " — built and maintained by Ismail Babani";
   }
 
   const tagline =
