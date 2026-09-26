@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="tabbar">
+  <div class="tabbar-row">
+
+    <a href="#top" class="tab active" data-tab="top">
+      <span class="tab-dot" style="background:var(--blue);"></span>
+      profile.json
+    </a>
+
+    <a href="#about" class="tab" data-tab="about">
+      <span class="tab-dot" style="background:var(--ink-dim);"></span>
+      about.md
+    </a>
+
+    <a href="#skills" class="tab" data-tab="skills">
+      <span class="tab-dot" style="background:var(--gold);"></span>
+      skills.json
+    </a>
+
+    <a href="#projects" class="tab" data-tab="projects">
+      <span class="tab-dot" style="background:var(--green);"></span>
+      projects.log
+    </a>
+
+    <a href="#experience" class="tab" data-tab="experience">
+      <span class="tab-dot" style="background:var(--gold);"></span>
+      experience.log
+    </a>
+
+    <a href="#contact" class="tab" data-tab="contact">
+      <span class="tab-dot" style="background:var(--green);"></span>
+      contact.sh
+    </a>
+
+  </div>
+</div>
+
+
+<div class="wrap">
+
+  <!-- ================= HERO ================= -->
+
+  <section class="hero" id="top" style="border-bottom:none;">
+
+    <div class="hero-main-row">
+
+      <div class="hero-file">
+
+        <div class="hero-filebar">
+
+          <div class="hero-dots">
+            <span style="background:#5f6670;"></span>
+            <span style="background:#5f6670;"></span>
+            <span style="background:#5f6670;"></span>
+          </div>
+
+          profile.json
+
+        </div>
+
+        <div class="hero-code" id="heroCode"></div>
+
+      </div>
+
+
+      <!-- PROFILE PHOTO ON THE SIDE -->
+
+      <div class="hero-profile-photo">
+
+        <div class="hero-photo-frame">
+
+          <img
+            id="profilePhoto"
+            src=""
+            alt="Profile photo"
+          >
+
+          <div
+            class="hero-photo-placeholder"
+            id="profilePhotoPlaceholder"
+          >
+            <span>IT</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="hero-lower">
+
+      <p
+        class="hero-tagline"
+        id="heroTagline"
+      ></p>
+
+      <div class="hero-actions">
+
+        <a
+          href="#projects"
+          class="btn btn-primary"
+        >
+          View projects
+        </a>
+
+        <a
+          href="#contact"
+          class="btn btn-ghost"
+        >
+          Get in touch
+        </a>
+
+        <button
+          class="btn btn-ghost admin-only"
+          onclick="openProfileModal()"
+        >
+          Edit profile
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ================= ABOUT ================= -->
+
+  <section id="about">
+
+    <div class="file-label">
+
+      <span id="aboutFileName">
+        about.md
+      </span>
+
+      <span class="bar"></span>
+
+      <button
+        class="btn btn-ghost btn-sm admin-only"
+        onclick="openProfileModal()"
+      >
+        Edit
+      </button>
+
+    </div>
+
+    <h2 class="section-title">
+      About
+    </h2>
+
+    <div class="about-body">
+
+      <div
+        class="gutter"
+        id="aboutGutter"
+      ></div>
+
+      <p
+        class="about-text"
+        id="bioText"
+      ></p>
+
+    </div>
+
+  </section>
+
+
+  <!-- ================= SKILLS ================= -->
+
+  <section id="skills">
+
+    <div class="file-label">
+
+      <span>
+        skills.json
+      </span>
+
+      <span class="bar"></span>
+
+    </div>
+
+
+    <div class="section-top">
+
+      <div>
+
+        <h2 class="section-title">
+          What I work with
+        </h2>
+
+        <p
+          class="section-desc"
+          style="margin-bottom:0;"
+        >
+          Grouped by the kind of work it supports.
+        </p>
+
+      </div>
+
+
+      <button
+        class="add-btn"
+        onclick="openSkillCatModal()"
+      >
+        + add category
+      </button>
+
+    </div>
+
+
+    <div
+      class="skills-grid"
+      id="skillsGrid"
+      style="margin-top:22px;"
+    ></div>
+
+  </section>
+
+
+  <!-- ================= PROJECTS ================= -->
+
+  <section id="projects">
+
+    <div class="file-label">
+
+      <span>
+        projects.log
+      </span>
+
+      <span class="bar"></span>
+
+    </div>
+
+
+    <div class="section-top">
+
+      <div>
+
+        <h2 class="section-title">
+          Projects
+        </h2>
+
+        <p
+          class="section-desc"
+          style="margin-bottom:0;"
+        >
+          A running log of things I've shipped and maintained.
+        </p>
+
+      </div>
+
+
+      <button
+        class="add-btn"
+        onclick="openProjectModal()"
+      >
+        + add entry
+      </button>
+
+    </div>
+
+
+    <div
+      class="log-list"
+      id="projectsGrid"
+      style="margin-top:12px;"
+    ></div>
+
+  </section>
+
+
+  <!-- ================= EXPERIENCE ================= -->
+
+  <section id="experience">
+
+    <div class="file-label">
+
+      <span>
+        experience.log
+      </span>
+
+      <span class="bar"></span>
+
+    </div>
+
+
+    <div class="section-top">
+
+      <div>
+
+        <h2 class="section-title">
+          Experience
+        </h2>
+
+      </div>
+
+
+      <button
+        class="add-btn"
+        onclick="openExperienceModal()"
+      >
+        + add role
+      </button>
+
+    </div>
+
+
+    <div
+      class="exp-list"
+      id="timeline"
+      style="margin-top:8px;"
+    ></div>
+
+  </section>
+
+
+  <!-- ================= CONTACT ================= -->
+
+  <section
+    id="contact"
+    style="border-bottom:none;"
+  >
+
+    <div class="file-label">
+
+      <span>
+        contact.sh
+      </span>
+
+      <span class="bar"></span>
+
+    </div>
+
+
+    <div class="contact-file">
+
+      <div class="contact-top">
+
+        <p class="contact-cmd">
+
+          <span class="p">$</span>
+          ./get-in-touch.sh
+
+        </p>
+
+        <h2 class="contact-title">
+          Open a ticket, or just say hi
+        </h2>
+
+        <p
+          class="contact-sub"
+          id="contactSub"
+        ></p>
+
+      </div>
+
+
+      <div
+        class="contact-links"
+        id="contactLinks"
+      ></div>
+
+    </div>
+
+  </section>
+
+
+  <footer id="footerText"></footer>
+
+</div>
+
+
+<!-- ================= ADMIN BADGE ================= -->
+
+<div id="adminBadge">
+
+  <span class="admin-dot"></span>
+
+  admin mode
+
+  <button
+    class="btn btn-ghost btn-sm"
+    onclick="signOutAdmin()"
+  >
+    Sign out
+  </button>
+
+</div>
+
+
+<!-- ================= LOGIN ================= -->
+
+<div
+  class="overlay"
+  id="loginOverlay"
+>
+
+  <div
+    class="modal"
+    style="max-width:340px;"
+  >
+
+    <div class="modal-head">
+
+      <h3 class="modal-title">
+        admin.login
+      </h3>
+
+      <button
+        class="modal-close"
+        onclick="closeOverlay('loginOverlay')"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <div class="field">
+
+        <label>
+          password
+        </label>
+
+        <input
+          type="password"
+          id="loginPass"
+          placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')tryLogin()"
+        >
+
+      </div>
+
+
+      <p
+        class="helptext"
+        id="loginError"
+        style="
+          color:var(--rose);
+          display:none;
+        "
+      >
+        Incorrect password.
+      </p>
+
+    </div>
+
+
+    <div
+      class="modal-foot"
+      style="justify-content:flex-end;"
+    >
+
+      <button
+        class="btn btn-primary"
+        onclick="tryLogin()"
+      >
+        Sign in
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================= PROFILE MODAL ================= -->
+
+<div
+  class="overlay"
+  id="profileOverlay"
+>
+
+  <div class="modal">
+
+    <div class="modal-head">
+
+      <h3 class="modal-title">
+        edit profile
+      </h3>
+
+      <button
+        class="modal-close"
+        onclick="closeOverlay('profileOverlay')"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+
+      <div class="field">
+
+        <label>
+          name
+        </label>
+
+        <input id="f-name">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          role line
+        </label>
+
+        <input id="f-role">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          tagline
+        </label>
+
+        <textarea id="f-tagline"></textarea>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          bio
+        </label>
+
+        <textarea
+          id="f-bio"
+          style="min-height:100px;"
+        ></textarea>
+
+      </div>
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label>
+            email
+          </label>
+
+          <input id="f-email">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            location
+          </label>
+
+          <input id="f-location">
+
+        </div>
+
+      </div>
+
+
+      <!-- PROFILE PHOTO -->
+
+      <div class="field">
+
+        <label>
+          profile photo
+        </label>
+
+
+        <div class="admin-photo-editor">
+
+
+          <div
+            class="admin-photo-preview"
+            id="adminPhotoPreview"
+          >
+
+            <img
+              id="adminPhotoPreviewImg"
+              src=""
+              alt="Profile photo preview"
+            >
+
+            <span
+              id="adminPhotoPreviewEmpty"
+            >
+              No photo
+            </span>
+
+          </div>
+
+
+          <div class="admin-photo-actions">
+
+            <label
+              class="btn btn-ghost btn-sm photo-upload-btn"
+              id="photoActionBtn"
+              for="f-photo"
+            >
+              Add photo
+            </label>
+
+
+            <button
+              type="button"
+              class="btn btn-danger btn-sm"
+              onclick="removeProfilePhoto()"
+            >
+              Remove photo
+            </button>
+
+          </div>
+
+
+          <input
+            id="f-photo"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            hidden
+          >
+
+
+          <p class="helptext">
+            JPG, PNG, or WebP. Maximum 750 KB.
+          </p>
+
+
+        </div>
+
+      </div>
+
+
+      <div class="checkbox-row">
+
+        <input
+          type="checkbox"
+          id="f-available"
+        >
+
+        <label for="f-available">
+          currently available for work
+        </label>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          contact note
+        </label>
+
+        <input id="f-contactsub">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          responds_in (e.g. ~1 day)
+        </label>
+
+        <input id="f-respond">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          links (label + url)
+        </label>
+
+
+        <div
+          id="linksEditList"
+          style="
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+          "
+        ></div>
+
+
+        <button
+          class="btn btn-ghost btn-sm"
+          style="margin-top:8px;"
+          onclick="addLinkRow()"
+        >
+          + add link
+        </button>
+
+      </div>
+
+
+    </div>
+
+
+    <div class="modal-foot">
+
+      <span></span>
+
+      <button
+        class="btn btn-primary"
+        onclick="saveProfile()"
+      >
+        Save changes
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================= SKILL CATEGORY ================= -->
+
+<div
+  class="overlay"
+  id="skillCatOverlay"
+>
+
+  <div
+    class="modal"
+    style="max-width:380px;"
+  >
+
+    <div class="modal-head">
+
+      <h3
+        class="modal-title"
+        id="skillCatModalTitle"
+      >
+        add category
+      </h3>
+
+      <button
+        class="modal-close"
+        onclick="closeOverlay('skillCatOverlay')"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <div class="field">
+
+        <label>
+          category name
+        </label>
+
+        <input
+          id="sc-name"
+          placeholder="e.g. QA & Testing"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-foot">
+
+      <span></span>
+
+      <button
+        class="btn btn-primary"
+        onclick="saveSkillCat()"
+      >
+        Save
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================= SKILL ITEM ================= -->
+
+<div
+  class="overlay"
+  id="skillItemOverlay"
+>
+
+  <div
+    class="modal"
+    style="max-width:380px;"
+  >
+
+    <div class="modal-head">
+
+      <h3 class="modal-title">
+        add skill
+      </h3>
+
+      <button
+        class="modal-close"
+        onclick="closeOverlay('skillItemOverlay')"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <div class="field">
+
+        <label>
+          skill
+        </label>
+
+        <input
+          id="si-name"
+          placeholder="e.g. Selenium"
+          onkeydown="if(event.key==='Enter')saveSkillItem()"
+        >
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-foot">
+
+      <span></span>
+
+      <button
+        class="btn btn-primary"
+        onclick="saveSkillItem()"
+      >
+        Add
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================= PROJECT ================= -->
+
+<div
+  class="overlay"
+  id="projectOverlay"
+>
+
+  <div class="modal">
+
+    <div class="modal-head">
+
+      <h3
+        class="modal-title"
+        id="projectModalTitle"
+      >
+        add entry
+      </h3>
+
+      <button
+        class="modal-close"
+        onclick="closeOverlay('projectOverlay')"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label>
+            hash
+          </label>
+
+          <input
+            id="p-code"
+            placeholder="a3f9c1"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            status
+          </label>
+
+          <select id="p-status">
+
+            <option>
+              Live
+            </option>
+
+            <option>
+              In Progress
+            </option>
+
+            <option>
+              Archived
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          title
+        </label>
+
+        <input id="p-title">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          description
+        </label>
+
+        <textarea id="p-desc"></textarea>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          tags (comma separated)
+        </label>
+
+        <input
+          id="p-tags"
+          placeholder="React, Node, Postgres"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          link
+        </label>
+
+        <input
+          id="p-link"
+          placeholder="https://"
+        >
+
+      </div>
+
+
+    </div>
+
+
+    <div class="modal-foot">
+
+      <button
+        class="btn btn-danger btn-sm"
+        id="projectDeleteBtn"
+        style="display:none;"
+        onclick="deleteCurrentProject()"
+      >
+        Delete
+      </button>
+
+
+      <button
+        class="btn btn-primary"
+        onclick="saveProject()"
+      >
+        Save entry
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================= EXPERIENCE ================= -->
+
+<div
+  class="overlay"
+  id="experienceOverlay"
+>
+
+  <div class="modal">
+
+    <div class="modal-head">
+
+      <h3
+        class="modal-title"
+        id="expModalTitle"
+      >
+        add role
+      </h3>
+
+      <button
+        class="modal-close"
+        onclick="closeOverlay('experienceOverlay')"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+
+      <div class="field-row">
+
+        <div class="field">
+
+          <label>
+            role
+          </label>
+
+          <input id="e-role">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            organization
+          </label>
+
+          <input id="e-org">
+
+        </div>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          period
+        </label>
+
+        <input
+          id="e-period"
+          placeholder="2023 — Present"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          description
+        </label>
+
+        <textarea id="e-desc"></textarea>
+
+      </div>
+
+
+    </div>
+
+
+    <div class="modal-foot">
+
+      <button
+        class="btn btn-danger btn-sm"
+        id="expDeleteBtn"
+        style="display:none;"
+        onclick="deleteCurrentExperience()"
+      >
+        Delete
+      </button>
+
+
+      <button
+        class="btn btn-primary"
+        onclick="saveExperience()"
+      >
+        Save
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="toast"></div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
