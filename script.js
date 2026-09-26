@@ -1239,8 +1239,6 @@ async function saveProfile() {
 
   renderAll();
 }
-
-
 /* ============ SKILLS ============ */
 
 let editingSkillCatId = null;
@@ -2296,16 +2294,6 @@ function renderContactLinks() {
 
 /* ============ ADMIN KEY ============ */
 
-/*
-  Admin is intentionally hidden from
-  the public navigation.
-
-  Press:
-  Ctrl + Alt + A
-
-  to open the admin login.
-*/
-
 document.addEventListener(
   "keydown",
   event => {
@@ -2338,13 +2326,213 @@ document.addEventListener(
 
   renderAll();
 
-  // Direct admin URL: /admin
-  if (window.location.pathname.replace(/\/$/, "") === "/admin") {
+  if (
+    window.location.pathname.replace(
+      /\/$/,
+      ""
+    ) === "/admin"
+  ) {
     if (isAdmin) {
-      toast("Already in admin mode");
+      toast(
+        "Already in admin mode"
+      );
     } else {
       openAdminModal();
     }
   }
 
 })();
+/* ============================================================
+   ABOUT EDITOR
+   Separate editor for the About section
+   ============================================================ */
+
+function createAboutEditor() {
+  if (document.getElementById("aboutOverlay")) {
+    return;
+  }
+
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
+  overlay.id = "aboutOverlay";
+
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="modal-head">
+        <h3 class="modal-title">edit about.md</h3>
+        <button
+          class="modal-close"
+          type="button"
+          aria-label="Close"
+          onclick="closeOverlay('aboutOverlay')"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="field">
+          <label for="about-editor">about</label>
+
+          <textarea
+            id="about-editor"
+            class="input"
+            style="min-height: 280px; resize: vertical;"
+            placeholder="Write your About text..."
+          ></textarea>
+        </div>
+
+        <p class="helptext">
+          This content is displayed in the About section of your portfolio.
+        </p>
+      </div>
+
+      <div class="modal-foot">
+        <span></span>
+
+        <button
+          class="btn btn-primary"
+          type="button"
+          onclick="saveAbout()"
+        >
+          Save changes
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener("click", function (event) {
+    if (event.target === overlay) {
+      closeOverlay("aboutOverlay");
+    }
+  });
+}
+
+
+function setupAboutEditor() {
+  const aboutSection = document.getElementById("about");
+
+  if (!aboutSection) {
+    return;
+  }
+
+  createAboutEditor();
+
+  const editButton = aboutSection.querySelector(
+    ".file-label .admin-only"
+  );
+
+  if (!editButton) {
+    return;
+  }
+
+  /*
+   * The original About button opens the Profile editor.
+   * Remove that inline action and replace it with the
+   * dedicated About editor.
+   */
+  editButton.removeAttribute("onclick");
+
+  editButton.onclick = function () {
+    openAboutModal();
+  };
+}
+
+
+function openAboutModal() {
+  if (!isAdmin) {
+    toast("Admin access required", "error");
+    return;
+  }
+
+  const textarea = document.getElementById("about-editor");
+
+  if (!textarea) {
+    toast("About editor is not available", "error");
+    return;
+  }
+
+  /*
+   * Use the existing profile.bio value as the About content.
+   */
+  textarea.value =
+    DATA &&
+    DATA.profile &&
+    typeof DATA.profile.bio === "string"
+      ? DATA.profile.bio
+      : "";
+
+  openOverlay("aboutOverlay");
+
+  setTimeout(function () {
+    textarea.focus();
+
+    try {
+      textarea.setSelectionRange(
+        textarea.value.length,
+        textarea.value.length
+      );
+    } catch (error) {
+      // Ignore selection errors.
+    }
+  }, 50);
+}
+
+
+async function saveAbout() {
+  if (!isAdmin) {
+    toast("Admin access required", "error");
+    return;
+  }
+
+  const textarea = document.getElementById("about-editor");
+
+  if (!textarea) {
+    toast("About editor is not available", "error");
+    return;
+  }
+
+  const bio = textarea.value.trim();
+
+  if (!DATA.profile) {
+    DATA.profile = {};
+  }
+
+  /*
+   * Save the About text into profile.bio.
+   * This keeps the existing database structure and APIs.
+   */
+  DATA.profile.bio = bio;
+
+  const saved = await persist("About saved");
+
+  if (!saved) {
+    return;
+  }
+
+  closeOverlay("aboutOverlay");
+
+  /*
+   * Refresh the public portfolio immediately.
+   */
+  renderAll();
+}
+
+
+/* ============================================================
+   INITIALIZE ABOUT EDITOR
+   ============================================================ */
+
+if (document.readyState === "loading") {
+  document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+      setupAboutEditor();
+    },
+    { once: true }
+  );
+} else {
+  setupAboutEditor();
+}
