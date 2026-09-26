@@ -850,1360 +850,6 @@ function previewSelectedPhoto() {
 
     renderAdminPhotoPreview();
 
-  };
-
-  reader.readAsDataURL(file);
-}
-
-
-function removeProfilePhoto() {
-  profilePhotoDraft = "";
-
-  profilePhotoChanged =
-    true;
-
-  const input =
-    document.getElementById(
-      "f-photo"
-    );
-
-  if (input) {
-    input.value = "";
-  }
-
-  renderAdminPhotoPreview();
-}
-
-
-/* ============ PROFILE EDITOR ============ */
-
-function openProfileModal() {
-  if (!isAdmin) {
-    return toast(
-      "Admin login required"
-    );
-  }
-
-  const overlay =
-    document.getElementById(
-      "profileOverlay"
-    );
-
-  if (!overlay) return;
-
-  const p =
-    DATA.profile || {};
-
-  document.getElementById(
-    "f-name"
-  ).value =
-    p.name || "";
-
-  document.getElementById(
-    "f-role"
-  ).value =
-    p.role || "";
-
-  document.getElementById(
-    "f-tagline"
-  ).value =
-    p.tagline || "";
-
-  document.getElementById(
-    "f-bio"
-  ).value =
-    p.bio || "";
-
-  document.getElementById(
-    "f-email"
-  ).value =
-    p.email || "";
-
-  document.getElementById(
-    "f-location"
-  ).value =
-    p.location || "";
-
-  document.getElementById(
-    "f-available"
-  ).checked =
-    p.available !== false;
-
-  document.getElementById(
-    "f-response"
-  ).value =
-    p.respondsIn || "";
-
-  document.getElementById(
-    "f-contact"
-  ).value =
-    p.contactSub || "";
-
-  profilePhotoDraft =
-    p.photo || "";
-
-  profilePhotoChanged =
-    false;
-
-  renderAdminPhotoPreview();
-
-  overlay.classList.add("show");
-}
-
-
-async function saveProfile() {
-  if (!isAdmin) {
-    return toast(
-      "Admin login required"
-    );
-  }
-
-  const p =
-    DATA.profile || {};
-
-  p.name =
-    document
-      .getElementById("f-name")
-      .value
-      .trim();
-
-  p.role =
-    document
-      .getElementById("f-role")
-      .value
-      .trim();
-
-  p.tagline =
-    document
-      .getElementById("f-tagline")
-      .value
-      .trim();
-
-  p.bio =
-    document
-      .getElementById("f-bio")
-      .value
-      .trim();
-
-  p.email =
-    document
-      .getElementById("f-email")
-      .value
-      .trim();
-
-  p.location =
-    document
-      .getElementById("f-location")
-      .value
-      .trim();
-
-  p.available =
-    document
-      .getElementById("f-available")
-      .checked;
-
-  p.respondsIn =
-    document
-      .getElementById("f-response")
-      .value
-      .trim();
-
-  p.contactSub =
-    document
-      .getElementById("f-contact")
-      .value
-      .trim();
-
-  if (profilePhotoChanged) {
-    p.photo =
-      profilePhotoDraft;
-  }
-
-  DATA.profile =
-    p;
-
-  const saved =
-    await persist(
-      "Profile saved"
-    );
-
-  if (!saved) return;
-
-  closeOverlay(
-    "profileOverlay"
-  );
-
-  renderAll();
-}
-
-
-/* ============ HERO RENDER ============ */
-
-function renderHeroCode() {
-  const el =
-    document.getElementById(
-      "heroCode"
-    );
-
-  if (!el) return;
-
-  const p =
-    DATA.profile || {};
-
-  const name =
-    p.name || "Portfolio";
-
-  el.textContent =
-    `const ${slugify(name)
-      .replace(/-/g, "_")} = {`;
-}
-
-
-function renderAboutGutter() {
-  const el =
-    document.getElementById(
-      "aboutGutter"
-    );
-
-  if (!el) return;
-
-  const p =
-    DATA.profile || {};
-
-  el.textContent =
-    p.name || "about";
-}
-
-
-/* ============ SKILLS ============ */
-
-function renderSkills() {
-  const container =
-    document.getElementById(
-      "skillsList"
-    );
-
-  if (!container) return;
-
-  container.innerHTML =
-    DATA.skills
-      .map(
-        group => `
-          <div class="skill-group">
-            <div class="skill-group-head">
-              <span class="skill-category">
-                ${escapeHtml(
-                  group.category
-                )}
-              </span>
-
-              ${
-                isAdmin
-                  ? `
-                    <div class="admin-actions">
-                      <button
-                        class="btn btn-ghost btn-sm"
-                        onclick="openSkillModal(${group.id})"
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        class="btn btn-danger btn-sm"
-                        onclick="deleteSkillGroup(${group.id})"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  `
-                  : ""
-              }
-            </div>
-
-            <ul class="skill-items">
-              ${group.items
-                .map(
-                  item => `
-                    <li>
-                      ${escapeHtml(item)}
-                    </li>
-                  `
-                )
-                .join("")}
-            </ul>
-          </div>
-        `
-      )
-      .join("");
-
-  if (isAdmin) {
-    container.insertAdjacentHTML(
-      "beforeend",
-      `
-        <div class="admin-add">
-          <button
-            class="btn btn-ghost btn-sm"
-            onclick="openSkillModal()"
-          >
-            + Add skill group
-          </button>
-        </div>
-      `
-    );
-  }
-}
-
-
-function openSkillModal(id = null) {
-  if (!isAdmin) {
-    return toast(
-      "Admin login required"
-    );
-  }
-
-  const overlay =
-    document.getElementById(
-      "skillOverlay"
-    );
-
-  if (!overlay) return;
-
-  const category =
-    document.getElementById(
-      "skillCategory"
-    );
-
-  const items =
-    document.getElementById(
-      "skillItems"
-    );
-
-  const modalTitle =
-    document.getElementById(
-      "skillModalTitle"
-    );
-
-  if (id) {
-
-    const group =
-      DATA.skills.find(
-        item =>
-          item.id === id
-      );
-
-    if (!group) return;
-
-    overlay.dataset.editId =
-      String(id);
-
-    modalTitle.textContent =
-      "edit skill group";
-
-    category.value =
-      group.category || "";
-
-    items.value =
-      (group.items || []).join(
-        "\n"
-      );
-
-  } else {
-
-    delete overlay.dataset.editId;
-
-    modalTitle.textContent =
-      "add skill group";
-
-    category.value = "";
-
-    items.value = "";
-  }
-
-  overlay.classList.add(
-    "show"
-  );
-}
-
-
-async function saveSkillGroup() {
-  if (!isAdmin) {
-    return toast(
-      "Admin login required"
-    );
-  }
-
-  const overlay =
-    document.getElementById(
-      "skillOverlay"
-    );
-
-  const category =
-    document
-      .getElementById(
-        "skillCategory"
-      )
-      .value
-      .trim();
-
-  const items =
-    document
-      .getElementById(
-        "skillItems"
-      )
-      .value
-      .split("\n")
-      .map(item =>
-        item.trim()
-      )
-      .filter(Boolean);
-
-  if (!category) {
-    return toast(
-      "Category is required"
-    );
-  }
-
-  if (!items.length) {
-    return toast(
-      "Add at least one skill"
-    );
-  }
-
-  const editId =
-    overlay.dataset.editId;
-
-  if (editId) {
-
-    const group =
-      DATA.skills.find(
-        item =>
-          item.id ===
-          Number(editId)
-      );
-
-    if (group) {
-      group.category =
-        category;
-
-      group.items =
-        items;
-    }
-
-  } else {
-
-    DATA.skills.push({
-      id: nextId(
-        DATA.skills
-      ),
-      category,
-      items
-    });
-
-  }
-
-  const saved =
-    await persist(
-      "Skills saved"
-    );
-
-  if (!saved) return;
-
-  closeOverlay(
-    "skillOverlay"
-  );
-
-  renderAll();
-}
-
-
-async function deleteSkillGroup(id) {
-  if (!isAdmin) {
-    return toast(
-      "Admin login required"
-    );
-  }
-
-  if (
-    !confirm(
-      "Delete this skill group?"
-    )
-  ) {
-    return;
-  }
-
-  DATA.skills =
-    DATA.skills.filter(
-      item =>
-        item.id !== id
-    );
-
-  const saved =
-    await persist(
-      "Skill group deleted"
-    );
-
-  if (saved) {
-    renderAll();
-  }
-}
-
-
-/* ============ PROJECTS ============ */
-
-let editingProjectId = null;
-
-
-function renderProjects() {
-  const container =
-    document.getElementById(
-      "projectsGrid"
-    );
-
-  if (!container) return;
-
-  container.innerHTML =
-    DATA.projects
-      .map(
-        project => `
-          <article class="project-card">
-
-            <div class="project-top">
-              <span class="project-code">
-                ${escapeHtml(
-                  project.code || ""
-                )}
-              </span>
-
-              <span class="project-status">
-                ${escapeHtml(
-                  project.status || ""
-                )}
-              </span>
-            </div>
-
-            <h3 class="project-title">
-              ${escapeHtml(
-                project.title
-              )}
-            </h3>
-
-            <p class="project-description">
-              ${escapeHtml(
-                project.description
-              )}
-            </p>
-
-            <div class="project-tags">
-              ${(project.tags || [])
-                .map(
-                  tag => `
-                    <span class="tag">
-                      ${escapeHtml(
-                        tag
-                      )}
-                    </span>
-                  `
-                )
-                .join("")}
-            </div>
-
-            ${
-              project.link &&
-              project.link !== "#"
-                ? `
-                  <a
-                    class="project-link"
-                    href="${escapeAttr(
-                      project.link
-                    )}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View project →
-                  </a>
-                `
-                : ""
-            }
-
-            ${
-              isAdmin
-                ? `
-                  <div class="project-admin-actions">
-                    <button
-                      class="btn btn-ghost btn-sm"
-                      onclick="openProjectModal(${project.id})"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      class="btn btn-danger btn-sm"
-                      onclick="deleteProject(${project.id})"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                `
-                : ""
-            }
-
-          </article>
-        `
-      )
-      .join("");
-
-  if (isAdmin) {
-    container.insertAdjacentHTML(
-      "beforeend",
-      `
-        <div class="admin-add">
-          <button
-            class="btn btn-ghost btn-sm"
-            onclick="openProjectModal()"
-          >
-            + Add project
-          </button>
-        </div>
-      `
-    );
-  }
-}
-
-
-function openProjectModal(id = null) {
-  if (!isAdmin) {
-    return toast(
-      "Admin login required"
-    );
-  }
-
-  editingProjectId =
-    id || null;
-
-  const isEdit =
-    !!id;
-
-  document.getElementById(
-    "projectModalTitle"
-  ).textContent =
-    isEdit
-      ? "edit entry"
-      : "add entry";
-
-  document.getElementById(
-    "projectDeleteBtn"
-  ).style.display =
-    isEdit
-      ? "inline-flex"
-      : "none";
-
-  const project =
-    isEdit
-      ? DATA.projects.find(
-          item =>
-            item.id === id
-        )
-      : {
-          code: "",
-          status: "Live",
-          title: "",
-          description: "",
-          tags: [],
-          link: ""
-        };
-
-  if (!project) return;
-
-  document.getElementById(
-    "p-code"
-  ).value =
-    project.code || "";
-
-  document.getElementById(
-    "p-status"
-  ).value =
-    project.status || "Live";
-
-  document.getElementById(
-    "p-title"
-  ).value =
-    project.title || "";
-
-  document.getElementById(
-    "p-desc"
-  ).value =
-    project.description || "";
-
-  document.getElementById(
-    "p-tags"
-  ).value =
-    (project.tags || []).join(
-      ", "
-    );
-
-  document.getElementById(
-    "p-link"
-  ).value =
-    project.link || "";
-
-  document
-    .getElementById(
-      "projectOverlay"
-    )
-    .classList.add("show");
-}
-
-
-function randomHash() {
-  return Math.random()
-    .toString(16)
-    .slice(2, 8);
-}
-
-
-async function saveProject() {
-  if (!isAdmin) {
-    return toast(
-      "Admin login required"
-    );
-  }
-
-  const project = {
-    code:
-      document
-        .getElementById("p-code")
-        .value
-        .trim() ||
-      randomHash(),
-
-    status:
-      document
-        .getElementById("p-status")
-        .value,
-
-    title:
-      document
-        .getElementById("p-title")
-        .value
-        .trim(),
-
-    description:
-      document
-        .getElementById("p-desc")
-        .value
-        .trim(),
-
-    tags:
-      document
-        .getElementById("p-tags")
-        .value
-        .split(",")
-        .map(tag => tag.trim())
-        .filter(Boolean),
-
-    link:
-      document
-        .getElementById("p-link")
-        .value
-        .trim() ||
-      "#"
-  };
-
-  if (!project.title) {
-    return toast(
-      "Give the entry a title first"
-    );
-  }
-
-  if (editingProjectId) {
-
-    const index =
-      DATA.projects.findIndex(
-        item =>
-          item.id ===
-          editingProjectId
-      );
-
-    if (index !== -1) {
-      DATA.projects[index] = {
-        ...DATA.projects[index],
-        ...project
-      };
-    }
-
-  } else {
-
-    DATA.projects.unshift({
-      id: nextId(
-        DATA.projects
-      ),
-      ...project
-    });
-
-  }
-
-  closeOverlay(
-    "projectOverlay"
-  );
-
-  renderAll();
-
-  await persist(
-    "Entry saved"
-  );
-}
-
-
-async function deleteProject(id) {
-  if (!isAdmin) {
-    return toast(
-      "Admin login required"
-    );
-  }
-
-  if (
-    !confirm(
-      "Delete this project?"
-    )
-  ) {
-    return;
-  }
-
-  DATA.projects =
-    DATA.projects.filter(
-      project =>
-        project.id !== id
-    );
-
-  closeOverlay(
-    "projectOverlay"
-  );
-
-  renderAll();
-
-  await persist(
-    "Entry deleted"
-  );
-}
-
-
-/* ============ EXPERIENCE ============ */
-
-let editingExpId = null;
-
-
-function renderExperience() {
-  const container =
-    document.getElementById(
-      "experienceList"
-    );
-
-  if (!container) return;
-
-  container.innerHTML =
-    DATA.experience
-      .map(
-        experience => `
-          <div class="experience-item">
-
-            <div class="experience-period">
-              ${escapeHtml(
-                experience.period
-              )}
-            </div>
-
-            <div class="experience-main">
-
-              <h3>
-                ${escapeHtml(
-                  experience.role
-                )}
-              </h3>
-
-              <div class="experience-org">
-                ${escapeHtml(
-                  experience.org
-                )}
-              </div>
-
-              <p>
-                ${escapeHtml(
-                  experience.description
-                )}
-              </p>
-
-            </div>
-
-            ${
-              isAdmin
-                ? `
-                  <div class="experience-actions">
-                    <button
-                      class="btn btn-ghost btn-sm"
-                      onclick="openExperienceModal(${experience.id})"
-                    >
-                      Edit
-                    </button>
-                  </div>
-                `
-                : ""
-            }
-
-          </div>
-        `
-      )
-      .join("");
-}
-
-
-function openExperienceModal(id = null) {
-  if (!isAdmin) {
-    return toast(
-      "Admin login required"
-    );
-  }
-
-  editingExpId =
-    id || null;
-
-  const isEdit =
-    !!id;
-
-  document.getElementById(
-    "experienceModalTitle"
-  ).textContent =
-    isEdit
-      ? "edit role"
-      : "add role";
-
-  document.getElementById(
-    "experienceDeleteBtn"
-  ).style.display =
-    isEdit
-      ? "inline-flex"
-      : "none";
-
-  const experience =
-    isEdit
-      ? DATA.experience.find(
-          item =>
-            item.id === id
-        )
-      : {
-          role: "",
-          org: "",
-          period: "",
-          description: ""
-        };
-
-  if (!experience) return;
-
-  document.getElementById(
-    "e-role"
-  ).value =
-    experience.role || "";
-
-  document.getElementById(
-    "e-org"
-  ).value =
-    experience.org || "";
-
-  document.getElementById(
-    "e-period"
-  ).value =
-    experience.period || "";
-
-  document.getElementById(
-    "e-desc"
-  ).value =
-    experience.description || "";
-
-  document
-    .getElementById(
-      "experienceOverlay"
-    )
-    .classList.add("show");
-}
-
-
-async function saveExperience() {
-  if (!isAdmin) {
-    return toast(
-      "Admin login required"
-    );
-  }
-
-  const experience = {
-    role:
-      document
-        .getElementById("e-role")
-        .value
-        .trim(),
-
-    org:
-      document
-        .getElementById("e-org")
-        .value
-        .trim(),
-
-    period:
-      document
-        .getElementById("e-period")
-        .value
-        .trim(),
-
-    description:
-      document
-        .getElementById("e-desc")
-        .value
-        .trim()
-  };
-
-  if (!experience.role) {
-    return toast(
-      "Give the role a title first"
-    );
-  }
-
-  if (editingExpId) {
-
-    const index =
-      DATA.experience.findIndex(
-        item =>
-          item.id ===
-          editingExpId
-      );
-
-    if (index !== -1) {
-      DATA.experience[index] = {
-        ...DATA.experience[index],
-        ...experience
-      };
-    }
-
-  } else {
-
-    DATA.experience.unshift({
-      id: nextId(
-        DATA.experience
-      ),
-      ...experience
-    });
-
-  }
-
-  closeOverlay(
-    "experienceOverlay"
-  );
-
-  renderAll();
-
-  await persist(
-    "Experience saved"
-  );
-}
-
-
-async function deleteExperience(id) {
-  if (!isAdmin) {
-    return toast(
-      "Admin login required"
-    );
-  }
-
-  if (
-    !confirm(
-      "Delete this experience entry?"
-    )
-  ) {
-    return;
-  }
-
-  DATA.experience =
-    DATA.experience.filter(
-      experience =>
-        experience.id !== id
-    );
-
-  closeOverlay(
-    "experienceOverlay"
-  );
-
-  renderAll();
-
-  await persist(
-    "Experience deleted"
-  );
-}
-
-
-/* ============ CONTACT ============ */
-
-function renderContact() {
-  const email =
-    document.getElementById(
-      "contactEmail"
-    );
-
-  const location =
-    document.getElementById(
-      "contactLocation"
-    );
-
-  const availability =
-    document.getElementById(
-      "contactAvailability"
-    );
-
-  if (email) {
-    email.textContent =
-      DATA.profile.email ||
-      "";
-  }
-
-  if (location) {
-    location.textContent =
-      DATA.profile.location ||
-      "";
-  }
-
-  if (availability) {
-    availability.textContent =
-      DATA.profile.available
-        ? "Available for work"
-        : "Currently unavailable";
-  }
-}
-
-
-function renderContactLinks() {
-  const container =
-    document.getElementById(
-      "contactLinks"
-    );
-
-  if (!container) return;
-
-  const links =
-    DATA.profile.links || [];
-
-  container.innerHTML =
-    links
-      .map(
-        link => `
-          <a
-            href="${escapeAttr(
-              link.url
-            )}"
-            class="contact-link"
-            ${
-              link.url &&
-              link.url.startsWith(
-                "http"
-              )
-                ? 'target="_blank" rel="noopener noreferrer"'
-                : ""
-            }
-          >
-            ${escapeHtml(
-              link.label
-            )}
-          </a>
-        `
-      )
-      .join("");
-}
-
-
-/* ============ ABOUT EDITOR ============ */
-
-function createAboutEditor() {
-  if (document.getElementById("aboutOverlay")) {
-    return;
-  }
-
-  const overlay = document.createElement("div");
-  overlay.className = "overlay";
-  overlay.id = "aboutOverlay";
-
-  overlay.innerHTML = `
-    <div class="modal">
-      <div class="modal-head">
-        <h3 class="modal-title">edit about.md</h3>
-        <button
-          class="modal-close"
-          type="button"
-          aria-label="Close"
-          onclick="closeOverlay('aboutOverlay')"
-        >
-          ✕
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <div class="field">
-          <label for="about-editor">about</label>
-
-          <textarea
-            id="about-editor"
-            class="input"
-            style="min-height: 280px; resize: vertical;"
-            placeholder="Write your About text..."
-          ></textarea>
-        </div>
-
-        <p class="helptext">
-          This content is displayed in the About section of your portfolio.
-        </p>
-      </div>
-
-      <div class="modal-foot">
-        <span></span>
-
-        <button
-          class="btn btn-primary"
-          type="button"
-          onclick="saveAbout()"
-        >
-          Save changes
-        </button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  overlay.addEventListener("click", function (event) {
-    if (event.target === overlay) {
-      closeOverlay("aboutOverlay");
-    }
-  });
-}
-
-
-function setupAboutEditor() {
-  const aboutSection = document.getElementById("about");
-
-  if (!aboutSection) {
-    return;
-  }
-
-  createAboutEditor();
-
-  const editButton = aboutSection.querySelector(
-    ".file-label .admin-only"
-  );
-
-  if (!editButton) {
-    return;
-  }
-
-  editButton.removeAttribute("onclick");
-
-  editButton.onclick = function () {
-    openAboutModal();
-  };
-}
-
-
-function openAboutModal() {
-  if (!isAdmin) {
-    toast("Admin access required", "error");
-    return;
-  }
-
-  createAboutEditor();
-
-  const textarea = document.getElementById("about-editor");
-
-  if (!textarea) {
-    toast("About editor is not available", "error");
-    return;
-  }
-
-  textarea.value =
-    DATA &&
-    DATA.profile &&
-    typeof DATA.profile.bio === "string"
-      ? DATA.profile.bio
-      : "";
-
-  openOverlay("aboutOverlay");
-
-  setTimeout(function () {
-    textarea.focus();
-
-    try {
-      textarea.setSelectionRange(
-        textarea.value.length,
-        textarea.value.length
-      );
-    } catch (error) {
-      // Ignore selection errors.
-    }
-  }, 50);
-}
-
-
-async function saveAbout() {
-  if (!isAdmin) {
-    toast("Admin access required", "error");
-    return;
-  }
-
-  const textarea = document.getElementById("about-editor");
-
-  if (!textarea) {
-    toast("About editor is not available", "error");
-    return;
-  }
-
-  const bio = textarea.value.trim();
-
-  if (!DATA.profile) {
-    DATA.profile = {};
-  }
-
-  /*
-   * Save the About text into profile.bio.
-   * This keeps the existing database structure and APIs.
-   */
-  DATA.profile.bio = bio;
-
-  const saved = await persist("About saved");
-
-  if (!saved) {
-    return;
-  }
-
-  closeOverlay("aboutOverlay");
-
-  /*
-   * Refresh the public portfolio immediately.
-   */
-  renderAll();
-}
-
-
-/* ============================================================
-   INITIALIZE ABOUT EDITOR
-   ============================================================ */
-
-if (document.readyState === "loading") {
-  document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-      setupAboutEditor();
-    },
-    { once: true }
-  );
-} else {
-  setupAboutEditor();
-}
-    profilePhotoChanged = true;
-
-    renderAdminPhotoPreview();
-
     toast(
       "Photo selected. Click Save changes to apply."
     );
@@ -3054,94 +1700,71 @@ function renderProjects() {
         }
 
         return `
-          <article class="project-card">
+          <div class="log-entry">
 
-            <div class="project-card-top">
-
-              <span
-                class="project-status ${statusClass}"
-              >
-                ${escapeHtml(
-                  project.status
-                )}
-              </span>
-
-              <span class="project-code">
-                ${escapeHtml(
-                  project.code
-                )}
-              </span>
-
+            <div class="log-hash">
+              #${escapeHtml(
+                project.code
+              )}
             </div>
 
-            <h3 class="project-title">
-              ${escapeHtml(
-                project.title
-              )}
-            </h3>
+            <div>
 
-            <p class="project-description">
-              ${escapeHtml(
-                project.description
-              )}
-            </p>
+              <h3 class="log-title">
+                ${
+                  project.link &&
+                  project.link !== "#"
+                    ? `
+                      <a
+                        href="${escapeAttr(
+                          project.link
+                        )}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        ${escapeHtml(
+                          project.title
+                        )}
+                      </a>
+                    `
+                    : escapeHtml(
+                        project.title
+                      )
+                }
+              </h3>
 
-            <div class="project-tags">
+              <p class="log-desc">
+                ${escapeHtml(
+                  project.description
+                )}
+              </p>
 
-              ${(project.tags || [])
-                .map(
-                  tag => `
-                    <span class="project-tag">
-                      ${escapeHtml(tag)}
-                    </span>
-                  `
-                )
-                .join("")}
-
-            </div>
-
-            <div class="project-footer">
-
-              ${
-                project.link &&
-                project.link !== "#"
-                  ? `
-                    <a
-                      class="project-link"
-                      href="${escapeAttr(
-                        project.link
-                      )}"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View project
-                      <span>↗</span>
-                    </a>
-                  `
-                  : `
-                    <span></span>
-                  `
-              }
+              <div class="log-tags">
+                ${project.tags
+                  .map(
+                    tag =>
+                      `<span class="log-tag">
+                        ${escapeHtml(
+                          tag
+                        )}
+                      </span>`
+                  )
+                  .join("")}
+              </div>
 
               ${
                 isAdmin
                   ? `
-                    <div class="project-actions">
-
+                    <div
+                      class="entry-actions"
+                      style="margin-top:12px;"
+                    >
                       <button
                         class="btn btn-ghost btn-sm"
                         onclick="openProjectModal(${project.id})"
                       >
                         Edit
                       </button>
-
-                      <button
-                        class="btn btn-danger btn-sm"
-                        onclick="deleteProject(${project.id})"
-                      >
-                        Delete
-                      </button>
-
                     </div>
                   `
                   : ""
@@ -3149,33 +1772,20 @@ function renderProjects() {
 
             </div>
 
-          </article>
+            <div class="log-status ${statusClass}">
+              ● ${escapeHtml(
+                project.status
+              )}
+            </div>
+
+          </div>
         `;
       })
       .join("");
-
-  if (isAdmin) {
-    grid.insertAdjacentHTML(
-      "beforeend",
-      `
-        <div class="project-card project-add-card">
-
-          <button
-            class="add-project-btn"
-            onclick="openProjectModal()"
-          >
-            <span>+</span>
-            Add project
-          </button>
-
-        </div>
-      `
-    );
-  }
 }
 
 
-function openProjectModal(id = null) {
+function openProjectModal(id) {
   if (!isAdmin) {
     return toast(
       "Admin login required"
@@ -3185,18 +1795,25 @@ function openProjectModal(id = null) {
   editingProjectId =
     id || null;
 
-  const modalTitle =
-    document.getElementById(
-      "projectModalTitle"
-    );
+  const isEdit =
+    !!id;
 
-  modalTitle.textContent =
-    id
-      ? "edit project"
-      : "add project";
+  document.getElementById(
+    "projectModalTitle"
+  ).textContent =
+    isEdit
+      ? "edit entry"
+      : "add entry";
+
+  document.getElementById(
+    "projectDeleteBtn"
+  ).style.display =
+    isEdit
+      ? "inline-flex"
+      : "none";
 
   const project =
-    id
+    isEdit
       ? DATA.projects.find(
           item =>
             item.id === id
@@ -3249,12 +1866,13 @@ function openProjectModal(id = null) {
       "projectOverlay"
     )
     .classList.add("show");
+}
 
-  setTimeout(() => {
-    document
-      .getElementById("p-title")
-      .focus();
-  }, 50);
+
+function randomHash() {
+  return Math.random()
+    .toString(16)
+    .slice(2, 8);
 }
 
 
@@ -3270,7 +1888,8 @@ async function saveProject() {
       document
         .getElementById("p-code")
         .value
-        .trim(),
+        .trim() ||
+      randomHash(),
 
     status:
       document
@@ -3301,41 +1920,35 @@ async function saveProject() {
       document
         .getElementById("p-link")
         .value
-        .trim()
+        .trim() ||
+      "#"
   };
 
   if (!project.title) {
     return toast(
-      "Project title is required"
+      "Give the entry a title first"
     );
-  }
-
-  if (!project.code) {
-    project.code =
-      Math.random()
-        .toString(16)
-        .slice(2, 8);
   }
 
   if (editingProjectId) {
 
-    const existing =
-      DATA.projects.find(
+    const index =
+      DATA.projects.findIndex(
         item =>
           item.id ===
           editingProjectId
       );
 
-    if (existing) {
-      Object.assign(
-        existing,
-        project
-      );
+    if (index !== -1) {
+      DATA.projects[index] = {
+        ...DATA.projects[index],
+        ...project
+      };
     }
 
   } else {
 
-    DATA.projects.push({
+    DATA.projects.unshift({
       id: nextId(
         DATA.projects
       ),
@@ -3344,22 +1957,19 @@ async function saveProject() {
 
   }
 
-  const saved =
-    await persist(
-      "Project saved"
-    );
-
-  if (!saved) return;
-
   closeOverlay(
     "projectOverlay"
   );
 
   renderAll();
+
+  await persist(
+    "Entry saved"
+  );
 }
 
 
-async function deleteProject(id) {
+async function deleteCurrentProject() {
   if (!isAdmin) {
     return toast(
       "Admin login required"
@@ -3377,18 +1987,273 @@ async function deleteProject(id) {
   DATA.projects =
     DATA.projects.filter(
       project =>
-        project.id !== id
+        project.id !==
+        editingProjectId
     );
 
-  const saved =
-    await persist(
-      "Project deleted"
-    );
-
-  if (!saved) return;
+  closeOverlay(
+    "projectOverlay"
+  );
 
   renderAll();
+
+  await persist(
+    "Entry deleted"
+  );
 }
+
+
+/* ============ EXPERIENCE ============ */
+
+let editingExpId = null;
+
+
+function renderExperience() {
+  const timeline =
+    document.getElementById(
+      "timeline"
+    );
+
+  if (!timeline) return;
+
+  timeline.innerHTML =
+    DATA.experience
+      .map(
+        experience => `
+          <div class="exp-entry">
+
+            <div class="exp-period">
+              ${escapeHtml(
+                experience.period
+              )}
+            </div>
+
+            <div>
+
+              <h3 class="exp-role">
+                ${escapeHtml(
+                  experience.role
+                )}
+              </h3>
+
+              <p class="exp-org">
+                ${escapeHtml(
+                  experience.org
+                )}
+              </p>
+
+              <p class="exp-desc">
+                ${escapeHtml(
+                  experience.description
+                )}
+              </p>
+
+            </div>
+
+            ${
+              isAdmin
+                ? `
+                  <div class="exp-actions">
+                    <button
+                      class="btn btn-ghost btn-sm"
+                      onclick="openExperienceModal(${experience.id})"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                `
+                : ""
+            }
+
+          </div>
+        `
+      )
+      .join("");
+}
+
+
+function openExperienceModal(id) {
+  if (!isAdmin) {
+    return toast(
+      "Admin login required"
+    );
+  }
+
+  editingExpId =
+    id || null;
+
+  const isEdit =
+    !!id;
+
+  document.getElementById(
+    "expModalTitle"
+  ).textContent =
+    isEdit
+      ? "edit role"
+      : "add role";
+
+  document.getElementById(
+    "expDeleteBtn"
+  ).style.display =
+    isEdit
+      ? "inline-flex"
+      : "none";
+
+  const experience =
+    isEdit
+      ? DATA.experience.find(
+          item =>
+            item.id === id
+        )
+      : {
+          role: "",
+          org: "",
+          period: "",
+          description: ""
+        };
+
+  if (!experience) return;
+
+  document.getElementById(
+    "e-role"
+  ).value =
+    experience.role || "";
+
+  document.getElementById(
+    "e-org"
+  ).value =
+    experience.org || "";
+
+  document.getElementById(
+    "e-period"
+  ).value =
+    experience.period || "";
+
+  document.getElementById(
+    "e-desc"
+  ).value =
+    experience.description || "";
+
+  document
+    .getElementById(
+      "experienceOverlay"
+    )
+    .classList.add("show");
+}
+
+
+async function saveExperience() {
+  if (!isAdmin) {
+    return toast(
+      "Admin login required"
+    );
+  }
+
+  const experience = {
+    role:
+      document
+        .getElementById("e-role")
+        .value
+        .trim(),
+
+    org:
+      document
+        .getElementById("e-org")
+        .value
+        .trim(),
+
+    period:
+      document
+        .getElementById("e-period")
+        .value
+        .trim(),
+
+    description:
+      document
+        .getElementById("e-desc")
+        .value
+        .trim()
+  };
+
+  if (!experience.role) {
+    return toast(
+      "Give the role a title first"
+    );
+  }
+
+  if (editingExpId) {
+
+    const index =
+      DATA.experience.findIndex(
+        item =>
+          item.id ===
+          editingExpId
+      );
+
+    if (index !== -1) {
+      DATA.experience[index] = {
+        ...DATA.experience[index],
+        ...experience
+      };
+    }
+
+  } else {
+
+    DATA.experience.unshift({
+      id: nextId(
+        DATA.experience
+      ),
+      ...experience
+    });
+
+  }
+
+  closeOverlay(
+    "experienceOverlay"
+  );
+
+  renderAll();
+
+  await persist(
+    "Experience saved"
+  );
+}
+
+
+async function deleteCurrentExperience() {
+  if (!isAdmin) {
+    return toast(
+      "Admin login required"
+    );
+  }
+
+  if (
+    !confirm(
+      "Delete this experience entry?"
+    )
+  ) {
+    return;
+  }
+
+  DATA.experience =
+    DATA.experience.filter(
+      experience =>
+        experience.id !==
+        editingExpId
+    );
+
+  closeOverlay(
+    "experienceOverlay"
+  );
+
+  renderAll();
+
+  await persist(
+    "Entry deleted"
+  );
+}
+
+
 /* ============ CONTACT ============ */
 
 function renderContactLinks() {
@@ -3431,6 +2296,16 @@ function renderContactLinks() {
 
 /* ============ ADMIN KEY ============ */
 
+/*
+  Admin is intentionally hidden from
+  the public navigation.
+
+  Press:
+  Ctrl + Alt + A
+
+  to open the admin login.
+*/
+
 document.addEventListener(
   "keydown",
   event => {
@@ -3463,217 +2338,13 @@ document.addEventListener(
 
   renderAll();
 
-  if (
-    window.location.pathname.replace(
-      /\/$/,
-      ""
-    ) === "/admin"
-  ) {
+  // Direct admin URL: /admin
+  if (window.location.pathname.replace(/\/$/, "") === "/admin") {
     if (isAdmin) {
-      toast(
-        "Already in admin mode"
-      );
+      toast("Already in admin mode");
     } else {
       openAdminModal();
     }
   }
 
 })();
-
-
-/* ============================================================
-   ABOUT EDITOR
-   Separate editor for the About section
-   ============================================================ */
-
-function createAboutEditor() {
-  if (document.getElementById("aboutOverlay")) {
-    return;
-  }
-
-  const overlay = document.createElement("div");
-  overlay.className = "overlay";
-  overlay.id = "aboutOverlay";
-
-  overlay.innerHTML = `
-    <div class="modal">
-      <div class="modal-head">
-        <h3 class="modal-title">edit about.md</h3>
-        <button
-          class="modal-close"
-          type="button"
-          aria-label="Close"
-          onclick="closeOverlay('aboutOverlay')"
-        >
-          ✕
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <div class="field">
-          <label for="about-editor">about</label>
-
-          <textarea
-            id="about-editor"
-            class="input"
-            style="min-height: 280px; resize: vertical;"
-            placeholder="Write your About text..."
-          ></textarea>
-        </div>
-
-        <p class="helptext">
-          This content is displayed in the About section of your portfolio.
-        </p>
-      </div>
-
-      <div class="modal-foot">
-        <span></span>
-
-        <button
-          class="btn btn-primary"
-          type="button"
-          onclick="saveAbout()"
-        >
-          Save changes
-        </button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  overlay.addEventListener("click", function (event) {
-    if (event.target === overlay) {
-      closeOverlay("aboutOverlay");
-    }
-  });
-}
-
-
-function setupAboutEditor() {
-  const aboutSection = document.getElementById("about");
-
-  if (!aboutSection) {
-    return;
-  }
-
-  createAboutEditor();
-
-  const editButton = aboutSection.querySelector(
-    ".file-label .admin-only"
-  );
-
-  if (!editButton) {
-    return;
-  }
-
-  /*
-   * The original About button opens the Profile editor.
-   * Remove that inline action and replace it with the
-   * dedicated About editor.
-   */
-  editButton.removeAttribute("onclick");
-
-  editButton.onclick = function () {
-    openAboutModal();
-  };
-}
-
-
-function openAboutModal() {
-  if (!isAdmin) {
-    toast("Admin access required", "error");
-    return;
-  }
-
-  createAboutEditor();
-
-  const textarea = document.getElementById("about-editor");
-
-  if (!textarea) {
-    toast("About editor is not available", "error");
-    return;
-  }
-
-  /*
-   * Use the existing profile.bio value as the About content.
-   */
-  textarea.value =
-    DATA &&
-    DATA.profile &&
-    typeof DATA.profile.bio === "string"
-      ? DATA.profile.bio
-      : "";
-
-  openOverlay("aboutOverlay");
-
-  setTimeout(function () {
-    textarea.focus();
-
-    try {
-      textarea.setSelectionRange(
-        textarea.value.length,
-        textarea.value.length
-      );
-    } catch (error) {
-      // Ignore selection errors.
-    }
-  }, 50);
-}
-
-
-async function saveAbout() {
-  if (!isAdmin) {
-    toast("Admin access required", "error");
-    return;
-  }
-
-  const textarea = document.getElementById("about-editor");
-
-  if (!textarea) {
-    toast("About editor is not available", "error");
-    return;
-  }
-
-  const bio = textarea.value.trim();
-
-  if (!DATA.profile) {
-    DATA.profile = {};
-  }
-
-  /*
-   * Save the About text into profile.bio.
-   * This keeps the existing database structure and APIs.
-   */
-  DATA.profile.bio = bio;
-
-  const saved = await persist("About saved");
-
-  if (!saved) {
-    return;
-  }
-
-  closeOverlay("aboutOverlay");
-
-  /*
-   * Refresh the public portfolio immediately.
-   */
-  renderAll();
-}
-
-
-/* ============================================================
-   INITIALIZE ABOUT EDITOR
-   ============================================================ */
-
-if (document.readyState === "loading") {
-  document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-      setupAboutEditor();
-    },
-    { once: true }
-  );
-} else {
-  setupAboutEditor();
-}
